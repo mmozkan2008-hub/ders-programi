@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ders Programım</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4338ca">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f4f5f9;--card:#fff;--tx:#1b1f2a;--mu:#6b7280;--ln:#d9dce6;--hd:#e3e8ff;--ac:#4338ca;--on:#fff;--em:#eceef5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141b;--card:#1c1f29;--tx:#eceef5;--mu:#9aa1b2;--ln:#343848;--hd:#262b45;--ac:#a5b4fc;--on:#12141b;--em:#242836;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141b;--card:#1c1f29;--tx:#eceef5;--mu:#9aa1b2;--ln:#343848;--hd:#262b45;--ac:#a5b4fc;--on:#12141b;--em:#242836;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:14px 8px 28px;max-width:720px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 6px 10px}
+h1{font:700 20px/1.2 Georgia,"Times New Roman",serif;margin:0}
+header p{margin:2px 0 0;color:var(--mu);font-size:13px}
+.ib{border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:10px;padding:8px 12px;font:inherit;cursor:pointer}
+table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:3px}
+th.t{width:50px;font-weight:400;font-size:10.5px;color:var(--mu);text-align:center;line-height:1.25}
+th.t b{display:block;font-size:14px;color:var(--tx)}
+th.h{background:var(--hd);border-radius:8px;padding:7px 0;font-size:13px}
+th.h.td{background:var(--ac);color:var(--on)}
+td{height:52px;border-radius:8px;padding:2px;text-align:center;vertical-align:middle;cursor:pointer;overflow:hidden}
+td.e{background:var(--em)}
+td.l{color:#fff;word-break:break-word}
+td.l b{display:block;font-size:12.5px;line-height:1.15}
+td.l span{display:block;font-size:10.5px;opacity:.92;line-height:1.15;margin-top:2px}
+td.lu{height:26px;background:none;border:1px dashed var(--ln);color:var(--mu);font-size:12px;cursor:default}
+.hint{text-align:center;color:var(--mu);font-size:12.5px;margin-top:12px}
+dialog{border:0;border-radius:16px;padding:18px;width:min(92vw,380px);background:var(--card);color:var(--tx)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{font-size:16px;margin:0 0 12px}
+label{display:block;font-size:12.5px;color:var(--mu);margin:10px 0 4px}
+input,select{width:100%;font:inherit;padding:9px 10px;border-radius:9px;border:1px solid var(--ln);background:var(--bg);color:var(--tx)}
+.cols{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.cols i{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.cols i.on{border-color:var(--tx)}
+.br{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+.br label{margin:0;font-size:12px}
+.row{display:flex;gap:8px;margin-top:16px}
+.row button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font:inherit;cursor:pointer}
+.row .pr{background:var(--ac);color:var(--on);border-color:var(--ac);font-weight:600}
+.row .dg{color:#dc2626}
+.pv{font-size:12px;color:var(--mu);margin-top:10px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Mehmet Özkan</h1>
+    <p>Haftalık toplam: <b id="total">0</b> ders saati</p>
+  </div>
+  <button class="ib" id="setBtn" type="button">⚙ Saatler</button>
+</header>
+<table id="grid"></table>
+<p class="hint">Bir kutuya dokun: ders ekle, düzenle veya sil.</p>
+
+<dialog id="ed">
+  <h2 id="edT"></h2>
+  <label for="fCls">Sınıf</label><input id="fCls" list="dlC" placeholder="örn. 9-A" autocomplete="off">
+  <label for="fSub">Ders</label><input id="fSub" list="dlS" placeholder="örn. Coğrafya" autocomplete="off">
+  <datalist id="dlC"></datalist><datalist id="dlS"></datalist>
+  <label for="fN">Süre</label><select id="fN"></select>
+  <label>Renk</label><div class="cols" id="cols"></div>
+  <div class="row">
+    <button type="button" id="fDel" class="dg">Sil</button>
+    <button type="button" id="fCan">Vazgeç</button>
+    <button type="button" id="fSave" class="pr">Kaydet</button>
+  </div>
+</dialog>
+
+<dialog id="sd">
+  <h2>Ders saatleri</h2>
+  <div class="br">
+    <div><label for="sStart">İlk ders başlar</label><input id="sStart" type="time"></div>
+    <div><label for="sDur">Ders süresi (dk)</label><input id="sDur" type="number" min="10" max="90"></div>
+  </div>
+  <label>Teneffüs süreleri (dk)</label>
+  <div class="br" id="sBr"></div>
+  <div class="pv" id="sPv"></div>
+  <div class="row">
+    <button type="button" id="sReset" class="dg">Sıfırla</button>
+    <button type="button" id="sCan">Vazgeç</button>
+    <button type="button" id="sSave" class="pr">Kaydet</button>
+  </div>
+</dialog>
+
+<script>
+const DAYS=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'],SH=['Pzt','Sal','Çar','Per','Cum'];
+const PAL=['#e11d48','#16a34a','#a855f7','#7e22ce','#db2777','#6d28d9','#2563eb','#ea580c'];
+const BRN=['1→2','2→3','3→4','4→5','5→6 (öğle)','6→7','7→8'];
+const DEF={set:{start:'08:20',dur:40,br:[20,10,10,10,40,10,10]},les:[
+{d:1,s:1,n:1,cls:'12-B EA',sub:'S.Coğraf',c:3},
+{d:1,s:2,n:1,cls:'9-İHL',sub:'Rehberlik',c:1},
+{d:1,s:3,n:2,cls:'12 İHL',sub:'S.Coğraf',c:2},
+{d:1,s:6,n:2,cls:'9-A',sub:'Coğrafya',c:0},
+{d:2,s:0,n:2,cls:'9-İHL',sub:'Coğrafya',c:1},
+{d:2,s:2,n:1,cls:'12 İHL',sub:'S.Coğraf',c:2},
+{d:2,s:3,n:1,cls:'12-B EA',sub:'S.Coğraf',c:3},
+{d:4,s:0,n:2,cls:'12-B EA',sub:'S.Coğraf',c:3},
+{d:4,s:2,n:2,cls:'9-B',sub:'Coğrafya',c:4},
+{d:4,s:4,n:1,cls:'12 İHL',sub:'S.Coğraf',c:2},
+{d:4,s:6,n:2,cls:'9-C',sub:'Coğrafya',c:5}
+]};
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+let st=load();
+function load(){try{const r=localStorage.getItem('dp-mozkan-1');if(r){const o=JSON.parse(r);if(o&&o.set&&o.les)return o}}catch(e){}return clone(DEF)}
+function save(){try{localStorage.setItem('dp-mozkan-1',JSON.stringify(st))}catch(e){}}
+const pad=n=>String(n).padStart(2,'0');
+const fmt=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function times(set){set=set||st.set;const p=set.start.split(':').map(Number);let t=p[0]*60+p[1];const r=[];for(let i=0;i<8;i++){r.push([t,t+set.dur]);t+=set.dur+(set.br[i]||0)}return r}
+
+function render(){
+  const T=times(),today=new Date().getDay()-1;
+  let h='<tr><th class="t"></th>'+SH.map((x,i)=>'<th class="h'+(i===today?' td':'')+'">'+x+'</th>').join('')+'</tr>';
+  const skip=[0,0,0,0,0];
+  for(let s=0;s<8;s++){
+    h+='<tr><th class="t"><b>'+(s+1)+'</b>'+fmt(T[s][0])+'<br>'+fmt(T[s][1])+'</th>';
+    for(let d=0;d<5;d++){
+      if(skip[d]>0){skip[d]--;continue}
+      const l=st.les.find(x=>x.d===d&&x.s===s);
+      if(l){skip[d]=l.n-1;h+='<td class="l" rowspan="'+l.n+'" style="background:'+PAL[l.c]+'" data-d="'+d+'" data-s="'+s+'"><b>'+esc(l.cls)+'</b><span>'+esc(l.sub)+'</span></td>'}
+      else h+='<td class="e" data-d="'+d+'" data-s="'+s+'"></td>';
+    }
+    h+='</tr>';
+    if(s===4)h+='<tr><td class="lu" colspan="6">Öğle arası '+fmt(T[4][1])+' – '+fmt(T[5][0])+'</td></tr>';
+  }
+  $('grid').innerHTML=h;
+  $('total').textContent=st.les.reduce((a,l)=>a+l.n,0);
+}
+
+// ---- ders düzenleme
+let cur=null,col=0;
+function maxLen(d,s,self){let m=0;for(let i=s;i<8;i++){if(i===5&&s<5)break;if(st.les.some(x=>x!==self&&x.d===d&&x.s<=i&&i<x.s+x.n))break;m++}return m}
+function drawCol(){$('cols').innerHTML=PAL.map((c,i)=>'<i data-c="'+i+'" class="'+(i===col?'on':'')+'" style="background:'+c+'"></i>').join('')}
+function lists(){
+  const u=k=>[...new Set(st.les.map(x=>x[k]).filter(Boolean))];
+  $('dlC').innerHTML=u('cls').map(x=>'<option value="'+esc(x)+'">').join('');
+  $('dlS').innerHTML=u('sub').map(x=>'<option value="'+esc(x)+'">').join('');
+}
+function openEd(d,s){
+  const l=st.les.find(x=>x.d===d&&x.s===s),T=times();
+  cur={d,s,l};
+  $('edT').textContent=DAYS[d]+' · '+(s+1)+'. ders ('+fmt(T[s][0])+')';
+  $('fCls').value=l?l.cls:'';$('fSub').value=l?l.sub:'';
+  const mx=maxLen(d,s,l);
+  $('fN').innerHTML=Array.from({length:mx},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+' ders saati</option>').join('');
+  $('fN').value=l?l.n:1;
+  col=l?l.c:(st.les.length?st.les[st.les.length-1].c:0);
+  drawCol();lists();$('fDel').style.display=l?'':'none';
+  $('ed').showModal();
+}
+$('grid').addEventListener('click',e=>{const t=e.target.closest('td[data-d]');if(t)openEd(+t.dataset.d,+t.dataset.s)});
+$('cols').addEventListener('click',e=>{const i=e.target.dataset.c;if(i!==undefined){col=+i;drawCol()}});
+$('fCan').onclick=()=>$('ed').close();
+$('fDel').onclick=()=>{st.les=st.les.filter(x=>x!==cur.l);save();render();$('ed').close()};
+$('fSave').onclick=()=>{
+  const cls=$('fCls').value.trim(),sub=$('fSub').value.trim();
+  if(!cls&&!sub){$('fCls').focus();return}
+  const o={d:cur.d,s:cur.s,n:+$('fN').value||1,cls,sub,c:col};
+  if(cur.l)st.les[st.les.indexOf(cur.l)]=o;else st.les.push(o);
+  save();render();$('ed').close();
+};
+
+// ---- saat ayarları
+function sRead(){
+  return{start:$('sStart').value||'08:20',dur:Math.max(10,+$('sDur').value||40),
+    br:[...document.querySelectorAll('#sBr input')].map(i=>Math.max(0,+i.value||0))};
+}
+function sPrev(){
+  const T=times(sRead());
+  $('sPv').innerHTML=T.map((t,i)=>(i+1)+'. ders '+fmt(t[0])+'–'+fmt(t[1])).join(' &nbsp;·&nbsp; ');
+}
+function openSet(){
+  $('sStart').value=st.set.start;$('sDur').value=st.set.dur;
+  $('sBr').innerHTML=BRN.map((n,i)=>'<div><label>'+n+'</label><input type="number" min="0" max="90" value="'+st.set.br[i]+'"></div>').join('');
+  $('sReset').textContent='Sıfırla';sPrev();$('sd').showModal();
+}
+$('setBtn').onclick=openSet;
+$('sd').addEventListener('input',sPrev);
+$('sCan').onclick=()=>$('sd').close();
+$('sSave').onclick=()=>{st.set=sRead();save();render();$('sd').close()};
+let rs=false;
+$('sReset').onclick=()=>{
+  if(!rs){rs=true;$('sReset').textContent='Emin misin? Tekrar dokun';setTimeout(()=>{rs=false;$('sReset').textContent='Sıfırla'},3000);return}
+  rs=false;st=clone(DEF);save();render();$('sd').close();
+};
+render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+</script>
+</body>
+</html>
